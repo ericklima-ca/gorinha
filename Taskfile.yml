@@ -1,0 +1,23 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  FOLDER: "files"
+
+tasks:
+  run:
+    cmds:
+      - go run main.go {{ .FOLDER }}/{{.CLI_ARGS}}.json
+  
+  rinha:
+    cmds:
+      - rinha {{.FOLDER}}/{{.CLI_ARGS}}.rinha | jq > {{.FOLDER}}/{{.CLI_ARGS}}.json
+
+  build:
+    cmds:
+      - go build -o ./dist/gorinha .
+
+  test:
+    cmds:
+      - go test

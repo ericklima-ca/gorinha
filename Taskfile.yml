@@ -1,4 +1,6 @@
 # https://taskfile.dev
+# to install ˋtaskˋ
+# go install github.com/go-task/task/v3/cmd/task@latest
 
 version: '3'
 
@@ -17,6 +19,14 @@ tasks:
   build:
     cmds:
       - go build -o ./bin/gorinha .
+  
+  docker-build:
+    cmds:
+      - docker build -t gorinha .
+  
+  docker-run:
+    cmds:
+      - docker run gorinha files/{{.CLI_ARGS}}.json
 
   test:
     cmds:

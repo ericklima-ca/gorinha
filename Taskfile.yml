@@ -16,7 +16,7 @@ tasks:
 
   build:
     cmds:
-      - go build -o ./dist/gorinha .
+      - go build -o ./bin/gorinha .
 
   test:
     cmds:

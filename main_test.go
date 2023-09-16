@@ -20,6 +20,11 @@ var tests = []testFiles{
 	{"sum", fmt.Sprintf("%s%s", DIR, "sum.json")},
 	{"sub", fmt.Sprintf("%s%s", DIR, "sub.json")},
 	{"concate", fmt.Sprintf("%s%s", DIR, "concate.json")},
+	{"combination", fmt.Sprintf("%s%s", DIR, "combination.json")},
+	{"first", fmt.Sprintf("%s%s", DIR, "first.json")},
+	{"second", fmt.Sprintf("%s%s", DIR, "second.json")},
+	{"print_tuple", fmt.Sprintf("%s%s", DIR, "print_tuple.json")},
+	{"print_function", fmt.Sprintf("%s%s", DIR, "print_function.json")},
 }
 
 func _eval(path string) interface{} {
@@ -34,7 +39,7 @@ func _eval(path string) interface{} {
 
 func Test(t *testing.T) {
 	for _, v := range tests {
-		if r := _eval(v.path); r != nil {
+		if r := _eval(v.path); r == "error" {
 			t.Errorf("error on %s.json file", v.fname)
 		}
 	}

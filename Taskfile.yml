@@ -10,7 +10,7 @@ vars:
 tasks:
   run:
     cmds:
-      - go run main.go {{ .FOLDER }}/{{.CLI_ARGS}}.json
+      - go run . {{ .FOLDER }}/{{.CLI_ARGS}}.json
   
   rinha:
     cmds:

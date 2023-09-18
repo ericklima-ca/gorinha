@@ -27,19 +27,21 @@ var tests = []testFiles{
 	{"print_function", fmt.Sprintf("%s%s", DIR, "print_function.json")},
 }
 
-func _eval(path string) interface{} {
+func _eval(path string) bool {
 	f, _ := os.ReadFile(path)
 	var file File
 	json.Unmarshal(f, &file)
 	var scope = make(map[string]interface{})
 
-	r := eval(file.Expression, scope)
-	return r
+	runtime := Runtime{}
+
+	_, err := runtime.eval(file.Expression, scope).(RuntimeError)
+	return err
 }
 
 func Test(t *testing.T) {
 	for _, v := range tests {
-		if r := _eval(v.path); r == "error" {
+		if err := _eval(v.path); err {
 			t.Errorf("error on %s.json file", v.fname)
 		}
 	}

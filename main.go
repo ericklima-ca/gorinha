@@ -1,12 +1,18 @@
 package main
 
+import (
+	"log"
+)
+
 func main() {
 	parser := Parser{}
-	runtime := Runtime{}
 	expression := parser.parse()
+	runtime := Runtime{}
+
 	var scope = make(Scope)
+
 	_, err := runtime.eval(expression, scope).(RuntimeError)
 	if err {
-		panic("runtime error")
+		log.Fatalln("\n===\nError occurred in main thread\n===")
 	}
 }

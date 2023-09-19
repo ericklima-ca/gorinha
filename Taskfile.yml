@@ -8,6 +8,10 @@ vars:
   FOLDER: "files"
 
 tasks:
+  install-rinha:
+    cmds:
+      - cargo install rinha
+
   run:
     cmds:
       - go run . {{ .FOLDER }}/{{.CLI_ARGS}}.json

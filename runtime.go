@@ -2,17 +2,21 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"reflect"
+	"strconv"
 
 	"github.com/mitchellh/mapstructure"
 )
 
-type Runtime struct{}
+type Runtime struct {
+	Filename string `json:"filename"`
+}
 type RuntimeError struct{}
 
 func (r *Runtime) eval(e Term, scope Scope) Term {
 	if e == nil {
-		panic("not file")
+		return RuntimeError{}
 	}
 	switch e.(map[string]interface{})["kind"] {
 	case "Str":
@@ -32,14 +36,19 @@ func (r *Runtime) eval(e Term, scope Scope) Term {
 		decode(e, &b)
 		switch b.Op {
 		case "Add":
-			lv := reflect.TypeOf(r.eval(b.Lhs, scope)).Kind()
-			rv := reflect.TypeOf(r.eval(b.Rhs, scope)).Kind()
-			if lv == reflect.Int32 && rv == reflect.Int32 {
-				return r.eval(b.Lhs, scope).(int32) + r.eval(b.Rhs, scope).(int32)
-			} else if lv == reflect.String || rv == reflect.String {
-				return fmt.Sprintf("%v%v", r.eval(b.Lhs, scope), r.eval(b.Rhs, scope))
+			left := r.eval(b.Lhs, scope)
+			right := r.eval(b.Rhs, scope)
+			lv, okl := left.(int32)
+			rv, okr := right.(int32)
+			if okl && okr {
+				return lv + rv
+			}
+			_, okls := left.(string)
+			_, okrs := right.(string)
+			if okls || okrs {
+				return fmt.Sprintf("%v%v", left, right)
 			} else {
-				panic("error add")
+				log.Fatalf("\n===\nError on add operator at %s\n===\n", strconv.Itoa(int(b.Location.Start)))
 			}
 
 		case "Sub":
@@ -48,7 +57,7 @@ func (r *Runtime) eval(e Term, scope Scope) Term {
 			if okl && okr {
 				return lv - rv
 			} else {
-				panic("error sub")
+				log.Fatalf("\n===\nError on sub operator at %s\n===\n", strconv.Itoa(int(b.Location.Start)))
 			}
 
 		case "Mul":
@@ -57,7 +66,7 @@ func (r *Runtime) eval(e Term, scope Scope) Term {
 			if okl && okr {
 				return lv * rv
 			} else {
-				panic("error mul")
+				log.Fatalf("\n===\nError on mul operator at %s\n===\n", strconv.Itoa(int(b.Location.Start)))
 			}
 
 		case "Div":
@@ -66,7 +75,7 @@ func (r *Runtime) eval(e Term, scope Scope) Term {
 			if okl && okr {
 				return lv / rv
 			} else {
-				panic("error div")
+				log.Fatalf("\n===\nError on div operator at %s\n===\n", strconv.Itoa(int(b.Location.Start)))
 			}
 
 		case "Rem":
@@ -75,61 +84,103 @@ func (r *Runtime) eval(e Term, scope Scope) Term {
 			if okl && okr {
 				return lv % rv
 			} else {
-				panic("error rem")
+				log.Fatalf("\n===\nError on rem operator at %s\n===\n", strconv.Itoa(int(b.Location.Start)))
 			}
 
 		case "Lt":
-			lv, okl := r.eval(b.Lhs, scope).(int32)
-			rv, okr := r.eval(b.Rhs, scope).(int32)
+			left := r.eval(b.Lhs, scope)
+			right := r.eval(b.Rhs, scope)
+			lv, okl := left.(int32)
+			rv, okr := right.(int32)
 			if okl && okr {
 				return lv < rv
+			}
+			lvs, okls := left.(string)
+			rvs, okrs := right.(string)
+			if okls && okrs {
+				return lvs < rvs
 			} else {
-				panic("error lt")
+				log.Fatalf("\n===\nError on lt operator at %s\n===\n", strconv.Itoa(int(b.Location.Start)))
 			}
 
 		case "Lte":
-			lv, okl := r.eval(b.Lhs, scope).(int32)
-			rv, okr := r.eval(b.Rhs, scope).(int32)
+			left := r.eval(b.Lhs, scope)
+			right := r.eval(b.Rhs, scope)
+			lv, okl := left.(int32)
+			rv, okr := right.(int32)
 			if okl && okr {
 				return lv <= rv
+			}
+			lvs, okls := left.(string)
+			rvs, okrs := right.(string)
+			if okls && okrs {
+				return lvs <= rvs
 			} else {
-				panic("error lte")
+				log.Fatalf("\n===\nError on lte operator at %s\n===\n", strconv.Itoa(int(b.Location.Start)))
 			}
 
 		case "Gt":
-			lv, okl := r.eval(b.Lhs, scope).(int32)
-			rv, okr := r.eval(b.Rhs, scope).(int32)
+			left := r.eval(b.Lhs, scope)
+			right := r.eval(b.Rhs, scope)
+			lv, okl := left.(int32)
+			rv, okr := right.(int32)
 			if okl && okr {
 				return lv > rv
+			}
+			lvs, okls := left.(string)
+			rvs, okrs := right.(string)
+			if okls && okrs {
+				return lvs > rvs
 			} else {
-				panic("error gt")
+				log.Fatalf("\n===\nError on gt operator at %s\n===\n", strconv.Itoa(int(b.Location.Start)))
 			}
 
 		case "Gte":
-			lv, okl := r.eval(b.Lhs, scope).(int32)
-			rv, okr := r.eval(b.Rhs, scope).(int32)
+			left := r.eval(b.Lhs, scope)
+			right := r.eval(b.Rhs, scope)
+			lv, okl := left.(int32)
+			rv, okr := right.(int32)
 			if okl && okr {
 				return lv >= rv
+			}
+			lvs, okls := left.(string)
+			rvs, okrs := right.(string)
+			if okls && okrs {
+				return lvs >= rvs
 			} else {
-				panic("error gte")
+				log.Fatalf("\n===\nError on gte operator at %s\n===\n", strconv.Itoa(int(b.Location.Start)))
 			}
 
 		case "Eq":
-			lv, okl := r.eval(b.Lhs, scope).(int32)
-			rv, okr := r.eval(b.Rhs, scope).(int32)
+			left := r.eval(b.Lhs, scope)
+			right := r.eval(b.Rhs, scope)
+			lv, okl := left.(int32)
+			rv, okr := right.(int32)
 			if okl && okr {
 				return lv == rv
+			}
+			lvs, okls := left.(string)
+			rvs, okrs := right.(string)
+			if okls && okrs {
+				return lvs == rvs
 			} else {
-				panic("error eq")
+				log.Fatalf("\n===\nError on eq operator at %s\n===\n", strconv.Itoa(int(b.Location.Start)))
 			}
 
 		case "Neq":
-			lv, okl := r.eval(b.Lhs, scope).(int32)
-			rv, okr := r.eval(b.Rhs, scope).(int32)
+			left := r.eval(b.Lhs, scope)
+			right := r.eval(b.Rhs, scope)
+			lv, okl := left.(int32)
+			rv, okr := right.(int32)
 			if okl && okr {
 				return lv != rv
+			}
+			lvs, okls := left.(string)
+			rvs, okrs := right.(string)
+			if okls && okrs {
+				return lvs != rvs
 			} else {
-				panic("error neq")
+				log.Fatalf("\n===\nError on neq operator at %s\n===\n", strconv.Itoa(int(b.Location.Start)))
 			}
 
 		case "Or":
@@ -138,7 +189,7 @@ func (r *Runtime) eval(e Term, scope Scope) Term {
 			if okl && okr {
 				return lv || rv
 			} else {
-				panic("error or")
+				log.Fatalf("\n===\nError on or operator at %s\n===\n", strconv.Itoa(int(b.Location.Start)))
 			}
 
 		case "And":
@@ -147,7 +198,7 @@ func (r *Runtime) eval(e Term, scope Scope) Term {
 			if okl && okr {
 				return lv && rv
 			} else {
-				panic("error and")
+				log.Fatalf("\n===\nError on and operator at %s\n===\n", strconv.Itoa(int(b.Location.Start)))
 			}
 
 		}
@@ -174,18 +225,18 @@ func (r *Runtime) eval(e Term, scope Scope) Term {
 	case "Function":
 		var f Function
 		decode(e, &f)
-		return func(args []Term, fScope map[string]interface{}) Term {
+		return func(args []Term, fScope Scope) Term {
 			if len(args) != len(f.Parameters) {
 				return RuntimeError{}
 			}
-			h := map[string]interface{}{}
-			for k, v := range fScope {
-				h[k] = v
-			}
 			for i, v := range f.Parameters {
-				h[v.Text] = args[i]
+				scope[v.Text] = args[i]
 			}
-			return r.eval(f.Value, h)
+			newScope := make(Scope)
+			for k, v := range scope {
+				newScope[k] = v
+			}
+			return r.eval(f.Value, newScope)
 		}
 
 	case "Call":

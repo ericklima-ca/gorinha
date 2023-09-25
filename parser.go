@@ -13,18 +13,20 @@ type Parser struct{}
 func (p *Parser) parse() Term {
 	args := os.Args
 
+	var filename string
+
 	if len(args) < 2 {
-		log.Fatalln("\n===\nNo file supplied.\nTry: \033[1;34mgorinha filename\033[0m\n===")
+		filename = "/var/rinha/source.rinha.json"
+	} else {
+		filename = args[1]
 	}
 
 	var outFile []byte
 
-	filename := args[1]
-
 	ext := path.Ext(filename)
 
 	if ext == ".rinha" {
-		cmd := exec.Command("rinha", args[1])
+		cmd := exec.Command("rinha", filename)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
 			errMessage := string(out)
@@ -37,7 +39,7 @@ func (p *Parser) parse() Term {
 		}
 		outFile = out
 	} else if ext == ".json" {
-		f, err := os.ReadFile(args[1])
+		f, err := os.ReadFile(filename)
 		if err != nil {
 			log.Fatalln("\n===\n\033[1mError on reading file.\033[0m\n===", err)
 		}
